@@ -24,6 +24,8 @@ define supervisor::service (
   $stopsignal               = 'TERM',
   $stopwait                 = 10,
   $user                     = 'root',
+  $stopasgroup              = false,
+  $killasgroup              = false,
   $group                    = 'root',
   $redirect_stderr          = false,
   $directory                = undef,
@@ -54,7 +56,7 @@ define supervisor::service (
       $service_ensure = 'running'
 
       if $enable == true {
-        $config_ensure = undef
+        $config_ensure = present
       } else {
         $config_ensure = absent
       }
@@ -94,6 +96,6 @@ define supervisor::service (
     start    => "/usr/bin/supervisorctl start ${process_name}",
     status   => "/usr/bin/supervisorctl status | awk '/^${name}[: ]/{print \$2}' | grep '^RUNNING$'",
     stop     => "/usr/bin/supervisorctl stop ${process_name}",
-    require  => [Class['supervisor::update'], File["${supervisor::params::conf_dir}/${name}.ini"]],
+    require  => File["${supervisor::params::conf_dir}/${name}.ini"],
   }
 }
